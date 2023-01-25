@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd" >
+<mapper namespace="salesMapper">
+  
+<resultMap type="sales" id="salesResultSet">
+	<result column="ORDER_DETAIL_NO" property="orderDetailNo"/>
+	<result column="USE_STATUS" property="useStatus"/>
+	<result column="COM_NO" property="comNo"/>
+	<result column="ORDER_DATE" property="orderDate"/>
+	<result column="PRODUCT_NAME" property="productName"/>
+	<result column="USER_ID" property="userId"/>
+	<result column="USER_NAME" property="userName"/>
+	<result column="USER_PHONE" property="userPhone"/>
+	<result column="PRODUCT_PRICE" property="productPrice"/>
+	<result column="PRODUCT_NO" property="productNo"/>
+	<result column="EXPER_TITLE"	 property="experTitle"/>
+	<result column="EXPER_PRICE"	 property="experPrice"/>
+	<result column="EXPER_NO"	 property="experNo"/>
+</resultMap>
+
+<insert id="insertSales">
+	INSERT INTO SALES VALUES(#{orderDetailNo}, DEFAULT, #{comNo})
+</insert>
+
+<select id="selectProductSales"  resultMap="salesResultSet">
+	SELECT ORDER_DETAIL_NO,
+        ORDER_DATE,
+        PRODUCT_NAME,
+        USER_ID,
+        USER_NAME,
+        USER_PHONE,
+        USE_STATUS,
+        COUNT,
+        PRODUCT_PRICE,
+        PRODUCT_NO
+	FROM SALES
+	RIGHT JOIN ORDER_DETAIL OD USING(ORDER_DETAIL_NO)
+	RIGHT JOIN PRODUCT P USING(PRODUCT_NO)
+	RIGHT JOIN MEMBER M USING(USER_NO)
+	RIGHT JOIN BOOTH B USING(BOOTH_NO)
+	WHERE B.COM_NO=#{comNo}
+	ORDER BY ORDER_DATE DESC
+</select>
+
+<select id="selectExperienceSales" resultMap="salesResultSet">
+	SELECT ORDER_DETAIL_NO,
+        ORDER_DATE,
+        EXPER_TITLE,
+        USER_ID,
+        USER_NAME,
+        USER_PHONE,
+        USE_STATUS,
+        COUNT,
+        EXPER_PRICE,
+        EXPER_NO
+	FROM SALES
+	RIGHT JOIN ORDER_DETAIL OD USING(ORDER_DETAIL_NO)
+	RIGHT JOIN EXPERIENCE E USING(EXPER_NO)
+	RIGHT JOIN MEMBER M USING(USER_NO)
+	RIGHT JOIN BOOTH B USING(BOOTH_NO)
+	WHERE B.COM_NO=#{comNo}
+	ORDER BY ORDER_DATE DESC
+</select>
+
+<update id="changeStatusYes">
+	UPDATE SALES SET USE_STATUS='Y'
+	WHERE ORDER_DETAIL_NO=#{integer}
+</update>
+
+<update id="changeStatusNo">
+	UPDATE SALES SET USE_STATUS='N'
+	WHERE ORDER_DETAIL_NO=#{integer}
+</update>
+
+</mapper>

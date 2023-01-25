@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd" >
+<mapper namespace="cartMapper">
+
+<resultMap type="cart" id="cartResultSet">
+	<result column="USER_NO" property="userNo"/>
+	<result column="PRODUCT_NO" property="productNo"/>
+	<result column="EXPER_NO" property="experNo"/>
+	<result column="COUNT" property="count"/>
+</resultMap>
+
+<resultMap type="cartList" id="cartProList">
+	<result column="USER_NO" property="userNo"/>
+	<result column="PRODUCT_NO" property="goodsNo"/>
+	<result column="BOOTH_NAME" property="boothName"/>
+	<result column="PRODUCT_NAME" property="goodsName"/>
+	<result column="PRODUCT_PRICE" property="goodsPrice"/>
+	<result column="COUNT" property="goodsCount"/>
+	<result column="PRODUCT_IMG_FP" property="goodsImgFp"/>
+</resultMap>
+
+	<resultMap type="cartList" id="cartExperList">
+	<result column="USER_NO" property="userNo"/>
+	<result column="EXPER_NO" property="goodsNo"/>
+	<result column="BOOTH_NAME" property="boothName"/>
+	<result column="EXPER_TITLE" property="goodsName"/>
+	<result column="EXPER_PRICE" property="goodsPrice"/>
+	<result column="COUNT" property="goodsCount"/>
+	<result column="EXPER_IMG_FP" property="goodsImgFp"/>
+</resultMap>
+
+<insert id="insertCart">
+	INSERT INTO CART(USER_NO,
+								PRODUCT_NO,
+								EXPER_NO,
+								COUNT)
+	VALUES(#{userNo},
+				#{productNo},
+				#{experNo},
+				#{count})
+</insert>
+
+<select id="checkCartProduct" resultType="_int">
+	SELECT COUNT(*)
+	FROM CART
+	WHERE USER_NO=#{userNo}
+	AND PRODUCT_NO=#{productNo}
+</select>
+
+<select id="checkCartExperience" resultType="_int">
+	SELECT COUNT(*)
+	FROM CART
+	WHERE USER_NO=#{	userNo}
+	AND EXPER_NO=#{experNo}
+</select>
+
+<update id="insertCartUpdateProductCount">
+	UPDATE CART SET COUNT=COUNT+#{count}
+	WHERE USER_NO=#{userNo}
+	AND PRODUCT_NO=#{productNo}
+</update>
+
+<update id="insertCartupdateExperiecne">
+	UPDATE CART SET COUNT=COUNT+#{count}
+	WHERE USER_NO=#{userNo}
+	AND EXPER_NO=#{experNo}
+</update>
+  
+ <select id="selectCartPro" resultMap="cartProList">
+	 SELECT C.USER_NO, P.PRODUCT_NO, B.BOOTH_NAME, P.PRODUCT_NAME, P.PRODUCT_PRICE, C.COUNT, P.PRODUCT_IMG_FP
+	 FROM CART C 
+	 JOIN PRODUCT P ON (P.PRODUCT_NO=C.PRODUCT_NO)
+	 JOIN BOOTH B ON (B.BOOTH_NO=p.BOOTH_NO)
+	 WHERE USER_NO= #{userNo} 
+ </select>
+ 
+<select id="selectCartExper" resultMap="cartExperList">
+	SELECT C.USER_NO,C.EXPER_NO, B.BOOTH_NAME, E.EXPER_TITLE, E.EXPER_PRICE, C.COUNT, E.EXPER_IMG_FP
+	FROM CART C
+	JOIN EXPERIENCE E
+	ON(E.EXPER_NO=C.EXPER_NO)
+	JOIN BOOTH B ON (B.BOOTH_NO=E.BOOTH_NO)
+	WHERE USER_NO= #{userNo}
+</select>
+
+<delete id="allDeleteCart">
+	DELETE CART 
+	WHERE USER_NO = #{userNo} 
+</delete>
+
+<delete id="selectProDelete"> 
+	DELETE CART
+	WHERE USER_NO = #{userNo}
+	AND PRODUCT_NO = #{goodsNo}
+</delete>
+
+<delete id="selectExperDelete">
+	DELETE CART
+	WHERE USER_NO = #{userNo}
+	AND EXPER_NO = #{goodsNo}
+</delete>
+
+
+<update id="countUpdatePro">
+	UPDATE CART
+	SET COUNT = #{goodsCount}
+	WHERE USER_NO =#{userNo}
+	AND PRODUCT_NO=#{goodsNo}
+
+</update>
+
+<update id="countUpdateExper">
+	UPDATE CART
+	SET COUNT = #{goodsCount}
+	WHERE USER_NO =#{userNo}
+	AND EXPER_NO = #{goodsNo}
+</update>
+  
+</mapper>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd" >
+<mapper namespace="OrderMapper">
+
+  <resultMap type="order" id="orderResultSet">
+	  	<result column="ORDER_NO" property="orderNo"/>
+		<result column="USER_NO" property="userNo"/>
+		<result column="ORDER_TOTALPAY" property="totalPay"/>
+  </resultMap>
+  
+    <resultMap type="orderDetail" id="orderDetailResultSet">
+	  	<result column="ODRDER_DETAIL_NO" property="orderDetailNo"/>
+		<result column="ORDER_NO" property ="orderNo"/>
+		<result column="USER_NO" property="userNo"/>
+		<result column="PRODUCT_NO" property="productNo"/>
+		<result column="EXPER_NO" property="experNo"/>
+		<result column="TICKET_NO" property="ticketNo"/>
+		<result column="COUNT" property="count"/>
+		<result column="ORDER_SATUS" property="orderStatus"/>
+  		<result column="ORDER_DATE" property="orderDate"/>
+  		<result column="PRODUCT_PRICE" property="productPrice"/>
+  		<result column="EXPER_PRICE" property="experPrice"/>
+  		<result column="BOOTH_NAME" property="boothName"/>
+  		<result column="PAY" property="pay"/>
+  		<result column="COM_NAME" property="comName"/>
+  		<result column="COM_NO" property="comNo"/>
+  </resultMap>
+  
+  
+  <select id="insertOrder" parameterType="order" resultMap="orderResultSet">
+  
+ 	 INSERT INTO ORDERS VALUES 
+ 	 (SEQ_ONO.NEXTVAL, #{userNo}, #{totalPrice})
+
+	</select>
+	
+	
+	<select id="selectOrderNo" parameterType="order" resultMap="orderResultSet">
+	SELECT *
+	FROM   
+		(SELECT ORDER_NO
+		FROM ORDERS
+		WHERE USER_NO=#{userNo}
+		ORDER BY ORDER_NO DESC)
+	WHERE ROWNUM = 1
+    
+	</select>
+	
+	
+	<select id="insertOrderDetail" parameterType="orderDetail" resultMap="orderDetailResultSet">
+  
+ 	 INSERT INTO ORDER_DETAIL VALUES
+ 	 (SEQ_ODNO.NEXTVAL, #{orderNo}, #{userNo}, 0, 0, #{ticketNo}, 1, 1, SYSDATE)
+
+	</select>
+	
+	<select id="insertOdPro" parameterType="orderDetail" resultMap="orderDetailResultSet">
+  
+ 	 INSERT INTO ORDER_DETAIL VALUES
+ 	 (SEQ_ODNO.NEXTVAL, #{orderNo}, #{userNo}, #{productNo}, 0, 0, #{count}, 1, SYSDATE)
+
+	</select>
+	
+	
+	
+	<select id="insertOdExer" parameterType="orderDetail" resultMap="orderDetailResultSet">
+  
+ 	 INSERT INTO ORDER_DETAIL VALUES
+ 	 (SEQ_ODNO.NEXTVAL, #{orderNo}, #{userNo}, 0, #{experNo}, 0, #{count}, 1, SYSDATE)
+
+	</select>
+	
+	<select id="selectOdnList" resultType="_int">
+	SELECT ORDER_DETAIL_NO
+	FROM ORDER_DETAIL
+	WHERE ORDER_NO=#{orderNo}
+	</select>
+	
+	<select id="selectProductNo" resultType="_int">
+	SELECT PRODUCT_NO
+	FROM ORDER_DETAIL
+	WHERE ORDER_DETAIL_NO=#{integer}
+	</select>
+	
+	<select id="selectComNoList" resultType="_int">
+	SELECT COM_NO
+	FROM ORDER_DETAIL
+	JOIN PRODUCT USING (PRODUCT_NO)
+	JOIN MEMBER M USING(USER_NO)
+	JOIN BOOTH B USING(BOOTH_NO)
+	WHERE ORDER_DETAIL_NO=#{integer}
+	</select>
+	
+	<select id="selectComNoList2" resultType="_int">
+   SELECT COM_NO
+	FROM ORDER_DETAIL
+    JOIN EXPERIENCE USING (EXPER_NO)
+	JOIN MEMBER M USING(USER_NO)
+	JOIN BOOTH B USING(BOOTH_NO)
+	WHERE ORDER_DETAIL_NO=#{integer}
+	</select>
+  
+  <select id="selectProductPayList" resultType="_int">
+  	SELECT COUNT*PRODUCT_PRICE PAY
+	FROM ORDER_DETAIL
+	JOIN PRODUCT USING(PRODUCT_NO)
+	JOIN BOOTH B USING(BOOTH_NO)
+	JOIN COMPANY C ON (C.USER_NO=B.COM_NO)
+	AND COM_NO=#{comNo}
+  </select>
+  
+  <select id="selectExperiencePayList" resultType="_int">
+  	SELECT COUNT*EXPER_PRICE PAY
+	FROM ORDER_DETAIL
+	JOIN EXPERIENCE USING(EXPER_NO)
+	JOIN BOOTH B USING(BOOTH_NO)
+	JOIN COMPANY C ON (C.USER_NO=B.COM_NO)
+	AND COM_NO=#{comNo}
+  </select>
+  
+  <select id="productCalculationList" resultMap="orderDetailResultSet" parameterType="orderDetail">
+  	SELECT BOOTH_NAME, SUM(COUNT*PRODUCT_PRICE) PAY, COM_NAME, COM_NO
+    FROM ORDER_DETAIL OD
+    JOIN PRODUCT P USING(PRODUCT_NO)
+    JOIN BOOTH B USING(BOOTH_NO)
+    JOIN COMPANY C ON (C.USER_NO=B.COM_NO)
+    GROUP BY BOOTH_NAME, COM_NAME, COM_NO
+  </select>
+  
+  
+  
+
+</mapper>
